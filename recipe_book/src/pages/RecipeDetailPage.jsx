@@ -1,40 +1,19 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import useGetAllToDo from '../hooks/UseGetAllToDo';
 
 const RecipeDetailPage = () => {
   const { id } = useParams();
-  const navigate = useNavigate(); // Для перенаправлення після видалення
-  const [recipe, setRecipe] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+  const { data: recipe, loading, error } = useGetAllToDo(`http://localhost:5000/api/recipes/${id}`);
 
-  useEffect(() => {
-    const fetchRecipe = async () => {
-      try {
-        const response = await fetch(`http://localhost:5000/api/recipes/${id}`);
-        if (!response.ok) throw new Error('Network response was not ok');
-        const data = await response.json();
-        // Якщо ingredients приходить як рядок, перетворюємо його у масив
-        data.ingredients = JSON.parse(data.ingredients);
-        setRecipe(data);
-      } catch (error) {
-        setError(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchRecipe();
-  }, [id]);
-
-  // Функція для видалення рецепту
   const handleDelete = async () => {
     try {
       const response = await fetch(`http://localhost:5000/api/recipes/${id}`, {
         method: 'DELETE',
       });
       if (!response.ok) throw new Error('Не вдалося видалити рецепт');
-      navigate('/'); // Після успішного видалення перенаправити на головну сторінку
+      navigate('/');
     } catch (error) {
       console.error('Помилка при видаленні рецепта:', error.message);
     }
@@ -49,7 +28,7 @@ const RecipeDetailPage = () => {
       <h1>{recipe.title}</h1>
       {recipe.photo && (
         <img
-          src={`http://localhost:5000${recipe.photo}`} // Відображення фото з правильним шляхом
+          src={`http://localhost:5000${recipe.photo}`}
           alt={recipe.title}
           style={{ width: '300px', height: 'auto' }}
         />
@@ -69,7 +48,6 @@ const RecipeDetailPage = () => {
       <h3>Опис:</h3>
       <p>{recipe.description}</p>
       
-      {/* Кнопка для видалення */}
       <button onClick={handleDelete}>Видалити рецепт</button>
     </div>
   );

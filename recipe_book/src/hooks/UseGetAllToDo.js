@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 
-export const useGetAllToDo = (url) => {
+const useGetAllToDo = (url) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -9,8 +8,10 @@ export const useGetAllToDo = (url) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(url);
-        setData(response.data);
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        const result = await response.json();
+        setData(result);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -23,4 +24,5 @@ export const useGetAllToDo = (url) => {
 
   return { data, loading, error };
 };
-export default useGetAllToDo;
+
+export default useGetAllToDo; // Переконайтеся, що це тут

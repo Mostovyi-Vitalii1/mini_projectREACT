@@ -1,0 +1,79 @@
+/* styles.css */
+
+body {
+    font-family: Arial, sans-serif;
+    /* Легкий фон для зручності читання */
+    margin: 0;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    color: #b7b5b5;
+    /* Основний колір тексту */
+}
+
+h2 {
+    color: #b7b5b5;
+    /* Трохи світліший колір заголовків рецептів */
+    margin: 10px 0;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    background: rgb(37, 23, 23);
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin: 15px 0;
+    padding: 15px;
+    transition: box-shadow 0.3s;
+}
+
+li:hover {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    /* Підсвічування при наведенні */
+}
+
+img {
+    display: block;
+    margin: 10px auto;
+    border-radius: 4px;
+    /* Краї з закругленням для зображень */
+}
+
+button {
+    background-color: #007bff;
+    /* Основний колір кнопок */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+    margin: 5px;
+    /* Відстань між кнопками */
+}
+
+button:hover {
+    background-color: #0056b3;
+    /* Темніший відтінок при наведенні */
+}
+
+input,
+textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+input[type="file"] {
+    border: none;
+}

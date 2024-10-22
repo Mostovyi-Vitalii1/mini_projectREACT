@@ -1,10 +1,35 @@
-import React from 'react';
-import { useGetAllToDo } from '../hooks/UseGetAllToDo';
+// RecipesPage.jsx
+import React, { useState } from 'react';
+import axios from 'axios';
 import AddRecipeForm from '../components/recipes/AddRecipeForm';
-import { Link } from 'react-router-dom'; // Імпортуємо Link для переходу до деталей рецепту
+import EditRecipeForm from '../components/recipes/EditRecipeForm';
+import { Link } from 'react-router-dom';
+import useRecipes from '../hooks/useRecipes'; // Імпортуємо кастомний хук
+// RecipesPage.jsx
+import '../styles/styles.css'; // Імпортуємо стилі на початку файлу
 
 const RecipesPage = () => {
-  const { data, loading, error } = useGetAllToDo('http://localhost:5000/api/recipes');
+  const { recipes, loading, error, fetchRecipes } = useRecipes(); // Використовуємо кастомний хук
+  const [editRecipeId, setEditRecipeId] = useState(null);
+
+  const handleEditClick = (recipeId) => {
+    setEditRecipeId(recipeId);
+  };
+
+  const handleCancelEdit = () => {
+    setEditRecipeId(null);
+  };
+
+  const handleRecipeAdded = (newRecipe) => {
+    // Додаємо новий рецепт до локального стану
+    fetchRecipes(); // Оновлюємо список рецептів
+  };
+
+  const handleRecipeUpdated = (updatedRecipe) => {
+    // Оновлюємо рецепт у локальному стані
+    fetchRecipes(); // Оновлюємо список рецептів
+    setEditRecipeId(null);
+  };
 
   if (loading) return <p>Завантаження...</p>;
   if (error) return <p>Помилка: {error}</p>;
@@ -12,13 +37,34 @@ const RecipesPage = () => {
   return (
     <div>
       <h1>Список рецептів</h1>
-      <AddRecipeForm />
+      <AddRecipeForm onRecipeAdded={handleRecipeAdded} /> {/* Передаємо onRecipeAdded */}
       <ul>
-        {data.map((recipe) => (
-          <li key={recipe.id}> {/* Переконайтеся, що recipe.id унікальний */}
-            <h2>{recipe.title}</h2>
-              {data.photo && <img src={data.photo} alt={data.title} style={{ width: '300px', height: 'auto' }} />} {/* Відображаємо фото */}
-            <Link to={`/recipes/${recipe.id}`}>Більше</Link> {/* Кнопка для переходу до деталей рецепту */}
+        {recipes.map((recipe) => (
+          <li key={recipe.id}>
+            {editRecipeId === recipe.id ? (
+              <EditRecipeForm
+                recipeId={recipe.id}
+                onRecipeUpdated={handleRecipeUpdated}
+              />
+            ) : (
+              <div>
+                <h2>{recipe.title}</h2>
+                {recipe.photo && (
+                  <img
+                    src={`http://localhost:5000${recipe.photo}`} // Відображення фото з правильним шляхом
+                    alt={recipe.title}
+                    style={{ width: '300px', height: 'auto' }}
+                  />
+                )}
+                <Link to={`/recipes/${recipe.id}`}>Більше</Link>
+                <button onClick={() => handleEditClick(recipe.id)}>
+                  Редагувати
+                </button>
+              </div>
+            )}
+            {editRecipeId === recipe.id && (
+              <button onClick={handleCancelEdit}>Скасувати редагування</button>
+            )}
           </li>
         ))}
       </ul>

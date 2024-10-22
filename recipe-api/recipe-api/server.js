@@ -98,6 +98,42 @@ app.post('/api/recipes', upload.single('photo'), (req, res) => {
   res.status(201).json(newRecipe);
 });
 
+// Редагувати рецепт за ID
+app.put('/api/recipes/:id', upload.single('photo'), (req, res) => {
+  const { id } = req.params;
+  const { title, category, ingredients, description } = req.body;
+  const recipeIndex = recipes.findIndex(r => r.id === Number(id));
+
+  if (recipeIndex !== -1) {
+    const recipe = recipes[recipeIndex];
+
+    // Оновлення даних рецепта
+    recipe.title = title || recipe.title;
+    recipe.category = category || recipe.category;
+    recipe.ingredients = ingredients || recipe.ingredients;
+    recipe.description = description || recipe.description;
+
+    // Якщо завантажено нове фото, видалити старе та оновити на нове
+    if (req.file) {
+      if (recipe.photo) {
+        const oldPhotoPath = path.join(__dirname, recipe.photo);
+        fs.unlink(oldPhotoPath, (err) => {
+          if (err) {
+            console.error('Помилка при видаленні старого фото:', err);
+          } else {
+            console.log('Старе фото видалено:', oldPhotoPath);
+          }
+        });
+      }
+      recipe.photo = `/uploads/${req.file.filename}`;
+    }
+
+    return res.status(200).json(recipe);
+  } else {
+    return res.status(404).json({ message: 'Рецепт не знайдено' });
+  }
+});
+
 // Запустити сервер
 app.listen(PORT, () => {
   console.log(`Сервер працює на http://localhost:${PORT}`);

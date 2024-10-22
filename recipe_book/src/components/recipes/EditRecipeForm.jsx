@@ -1,12 +1,27 @@
 import React, { useState } from 'react';
-import axios from 'axios';
-
-const AddRecipeForm = ({ onRecipeAdded }) => {
+import useFetchRecipe from '../../hooks/useFetchRecipe'; // Імпортуйте ваш новий хук
+import axios from 'axios'; // Імпорт axios
+const EditRecipeForm = ({ recipeId, onRecipeUpdated }) => {
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('');
   const [ingredients, setIngredients] = useState(['']);
   const [description, setDescription] = useState('');
   const [photo, setPhoto] = useState(null);
+
+  // Використання кастомного хука для завантаження рецепту
+  const { recipe, loading, error } = useFetchRecipe(recipeId);
+
+  // Перевірка, чи дані рецепту завантажено
+  if (loading) return <p>Завантаження рецепту...</p>;
+  if (error) return <p>{error}</p>;
+  
+  // Якщо рецепт завантажено, оновлюємо стан
+  if (recipe && title === '' && category === '' && description === '') {
+    setTitle(recipe.title);
+    setCategory(recipe.category);
+    setIngredients(Array.isArray(recipe.ingredients) ? recipe.ingredients : ['']);
+    setDescription(recipe.description);
+  }
 
   const handleIngredientChange = (index, value) => {
     const newIngredients = [...ingredients];
@@ -32,25 +47,17 @@ const AddRecipeForm = ({ onRecipeAdded }) => {
     }
 
     try {
-      const response = await axios.post('http://localhost:5000/api/recipes', formData, {
+      const response = await axios.put(`http://localhost:5000/api/recipes/${recipeId}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
-      console.log('Рецепт успішно додано:', response.data);
-
-      // Очистка форми після додавання
-      setTitle('');
-      setCategory('');
-      setIngredients(['']);
-      setDescription('');
-      setPhoto(null);
-
-      // Повертаємо новий рецепт у компонент
-      if (onRecipeAdded) onRecipeAdded(response.data);
+      console.log('Рецепт успішно оновлено:', response.data);
+      // Виклик функції зворотного виклику з новим рецептом
+      if (onRecipeUpdated) onRecipeUpdated(response.data);
     } catch (error) {
       if (error.response) {
-        console.error('Помилка при додаванні рецепта:', error.response.data);
+        console.error('Помилка при оновленні рецепта:', error.response.data);
       } else {
         console.error('Помилка:', error.message);
       }
@@ -59,7 +66,7 @@ const AddRecipeForm = ({ onRecipeAdded }) => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <h2>Додати новий рецепт</h2>
+      <h2>Редагувати рецепт</h2>
       <input
         type="text"
         placeholder="Назва страви"
@@ -98,9 +105,9 @@ const AddRecipeForm = ({ onRecipeAdded }) => {
         onChange={(e) => setPhoto(e.target.files[0])}
         accept="image/*"
       />
-      <button type="submit">Додати рецепт</button>
+      <button type="submit">Оновити рецепт</button>
     </form>
   );
 };
 
-export default AddRecipeForm;
+export default EditRecipeForm;
