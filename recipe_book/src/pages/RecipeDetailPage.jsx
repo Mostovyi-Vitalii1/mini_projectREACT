@@ -23,6 +23,11 @@ const RecipeDetailPage = () => {
   if (error) return <p>Помилка: {error}</p>;
   if (!recipe) return <p>Рецепт не знайдено</p>;
 
+  // Перетворюємо ingredients у масив, якщо це рядок
+  const ingredients = typeof recipe.ingredients === 'string' 
+    ? JSON.parse(recipe.ingredients) 
+    : recipe.ingredients;
+
   return (
     <div>
       <h1>{recipe.title}</h1>
@@ -36,9 +41,11 @@ const RecipeDetailPage = () => {
       <h2>Категорія: {recipe.category}</h2>
       <h3>Інгредієнти:</h3>
       <ul>
-        {Array.isArray(recipe.ingredients) ? (
-          recipe.ingredients.map((ingredient, index) => (
-            <li key={index}>{ingredient}</li>
+        {Array.isArray(ingredients) && ingredients.length > 0 ? (
+          ingredients.map((ingredient, index) => (
+            <li key={index}>
+              {ingredient.name} - {ingredient.quantity} {ingredient.unit}
+            </li>
           ))
         ) : (
           <li>Інгредієнти недоступні</li>

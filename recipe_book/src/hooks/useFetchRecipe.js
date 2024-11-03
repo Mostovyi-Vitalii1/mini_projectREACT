@@ -12,7 +12,14 @@ const useFetchRecipe = (recipeId) => {
       setLoading(true);
       try {
         const response = await axios.get(`http://localhost:5000/api/recipes/${recipeId}`);
-        setRecipe(response.data);
+        const fetchedRecipe = response.data;
+        
+        // Перевіряємо та конвертуємо ingredients у масив, якщо це рядок
+        fetchedRecipe.ingredients = typeof fetchedRecipe.ingredients === 'string' 
+          ? JSON.parse(fetchedRecipe.ingredients) 
+          : fetchedRecipe.ingredients;
+
+        setRecipe(fetchedRecipe);
       } catch (error) {
         setError('Помилка при завантаженні рецепту');
       } finally {

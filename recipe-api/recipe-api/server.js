@@ -89,7 +89,7 @@ app.post('/api/recipes', upload.single('photo'), (req, res) => {
     id: Date.now(),
     title, 
     category, 
-    ingredients, 
+    ingredients: JSON.parse(ingredients), // Перетворюємо інгредієнти з рядка в масив
     description, 
     photo 
   };
@@ -101,17 +101,16 @@ app.post('/api/recipes', upload.single('photo'), (req, res) => {
 // Редагувати рецепт за ID
 app.put('/api/recipes/:id', upload.single('photo'), (req, res) => {
   const { id } = req.params;
-  const { title, category, ingredients, description } = req.body;
   const recipeIndex = recipes.findIndex(r => r.id === Number(id));
 
   if (recipeIndex !== -1) {
     const recipe = recipes[recipeIndex];
 
     // Оновлення даних рецепта
-    recipe.title = title || recipe.title;
-    recipe.category = category || recipe.category;
-    recipe.ingredients = ingredients || recipe.ingredients;
-    recipe.description = description || recipe.description;
+    recipe.title = req.body.title || recipe.title;
+    recipe.category = req.body.category || recipe.category;
+    recipe.ingredients = req.body.ingredients ? JSON.parse(req.body.ingredients) : recipe.ingredients; // Перетворення в масив
+    recipe.description = req.body.description || recipe.description;
 
     // Якщо завантажено нове фото, видалити старе та оновити на нове
     if (req.file) {
@@ -132,6 +131,13 @@ app.put('/api/recipes/:id', upload.single('photo'), (req, res) => {
   } else {
     return res.status(404).json({ message: 'Рецепт не знайдено' });
   }
+});
+
+// API для отримання рецептів конкретного користувача
+app.get('/api/recipes/user/:userId', (req, res) => {
+  const userId = req.params.userId;
+  const userRecipes = recipes.filter(recipe => recipe.userId === userId); // Додайте поле userId до вашої моделі
+  res.json(userRecipes);
 });
 
 // Запустити сервер

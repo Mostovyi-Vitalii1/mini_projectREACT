@@ -4,18 +4,23 @@ import axios from 'axios';
 const AddRecipeForm = ({ onRecipeAdded }) => {
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('');
-  const [ingredients, setIngredients] = useState(['']);
+  const [ingredients, setIngredients] = useState([{ name: '', quantity: '', unit: '' }]);
   const [description, setDescription] = useState('');
   const [photo, setPhoto] = useState(null);
 
-  const handleIngredientChange = (index, value) => {
+  const handleIngredientChange = (index, field, value) => {
     const newIngredients = [...ingredients];
-    newIngredients[index] = value;
+    newIngredients[index][field] = value;
     setIngredients(newIngredients);
   };
 
   const addIngredient = () => {
-    setIngredients([...ingredients, '']);
+    setIngredients([...ingredients, { name: '', quantity: '', unit: '' }]);
+  };
+
+  const removeIngredient = (index) => {
+    const newIngredients = ingredients.filter((_, i) => i !== index);
+    setIngredients(newIngredients);
   };
 
   const handleSubmit = async (e) => {
@@ -42,7 +47,7 @@ const AddRecipeForm = ({ onRecipeAdded }) => {
       // Очистка форми після додавання
       setTitle('');
       setCategory('');
-      setIngredients(['']);
+      setIngredients([{ name: '', quantity: '', unit: '' }]);
       setDescription('');
       setPhoto(null);
 
@@ -75,14 +80,37 @@ const AddRecipeForm = ({ onRecipeAdded }) => {
         required
       />
       {ingredients.map((ingredient, index) => (
-        <input
-          key={index}
-          type="text"
-          placeholder={`Інгредієнт ${index + 1}`}
-          value={ingredient}
-          onChange={(e) => handleIngredientChange(index, e.target.value)}
-          required
-        />
+        <div key={index}>
+          <input
+            type="text"
+            placeholder={`Інгредієнт ${index + 1}`}
+            value={ingredient.name}
+            onChange={(e) => handleIngredientChange(index, 'name', e.target.value)}
+            required
+          />
+          <input
+            type="number"
+            placeholder="Кількість"
+            value={ingredient.quantity}
+            onChange={(e) => handleIngredientChange(index, 'quantity', e.target.value)}
+            required
+          />
+          <select
+            value={ingredient.unit}
+            onChange={(e) => handleIngredientChange(index, 'unit', e.target.value)}
+            required
+          >
+            <option value="">Оберіть одиницю</option>
+            <option value="грам">Грам</option>
+            <option value="кг">Кілограм</option>
+            <option value="шт">Шт</option>
+            <option value="літр">Літр</option>
+            <option value="мл">Мілілітр</option>
+          </select>
+          <button type="button" onClick={() => removeIngredient(index)}>
+            Видалити інгредієнт
+          </button>
+        </div>
       ))}
       <button type="button" onClick={addIngredient}>
         Додати інгредієнт

@@ -1,36 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import useFetchRecipe from '../../hooks/useFetchRecipe'; // Імпортуйте ваш новий хук
 import axios from 'axios'; // Імпорт axios
+
 const EditRecipeForm = ({ recipeId, onRecipeUpdated }) => {
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('');
-  const [ingredients, setIngredients] = useState(['']);
+  const [ingredients, setIngredients] = useState([{ name: '', quantity: '', unit: '' }]);
   const [description, setDescription] = useState('');
   const [photo, setPhoto] = useState(null);
 
   // Використання кастомного хука для завантаження рецепту
   const { recipe, loading, error } = useFetchRecipe(recipeId);
 
-  // Перевірка, чи дані рецепту завантажено
-  if (loading) return <p>Завантаження рецепту...</p>;
-  if (error) return <p>{error}</p>;
-  
-  // Якщо рецепт завантажено, оновлюємо стан
-  if (recipe && title === '' && category === '' && description === '') {
-    setTitle(recipe.title);
-    setCategory(recipe.category);
-    setIngredients(Array.isArray(recipe.ingredients) ? recipe.ingredients : ['']);
-    setDescription(recipe.description);
-  }
+  useEffect(() => {
+    // Перевірка, чи дані рецепту завантажено
+    if (recipe) {
+      setTitle(recipe.title);
+      setCategory(recipe.category);
+      setIngredients(Array.isArray(recipe.ingredients) ? recipe.ingredients : [{ name: '', quantity: '', unit: '' }]);
+      setDescription(recipe.description);
+    }
+  }, [recipe]);
 
-  const handleIngredientChange = (index, value) => {
+  const handleIngredientChange = (index, field, value) => {
     const newIngredients = [...ingredients];
-    newIngredients[index] = value;
+    newIngredients[index][field] = value;
     setIngredients(newIngredients);
   };
 
   const addIngredient = () => {
-    setIngredients([...ingredients, '']);
+    setIngredients([...ingredients, { name: '', quantity: '', unit: '' }]);
+  };
+
+  const removeIngredient = (index) => {
+    const newIngredients = ingredients.filter((_, i) => i !== index);
+    setIngredients(newIngredients);
   };
 
   const handleSubmit = async (e) => {
@@ -82,14 +86,37 @@ const EditRecipeForm = ({ recipeId, onRecipeUpdated }) => {
         required
       />
       {ingredients.map((ingredient, index) => (
-        <input
-          key={index}
-          type="text"
-          placeholder={`Інгредієнт ${index + 1}`}
-          value={ingredient}
-          onChange={(e) => handleIngredientChange(index, e.target.value)}
-          required
-        />
+        <div key={index}>
+          <input
+            type="text"
+            placeholder={`Інгредієнт ${index + 1}`}
+            value={ingredient.name}
+            onChange={(e) => handleIngredientChange(index, 'name', e.target.value)}
+            required
+          />
+          <input
+            type="number"
+            placeholder="Кількість"
+            value={ingredient.quantity}
+            onChange={(e) => handleIngredientChange(index, 'quantity', e.target.value)}
+            required
+          />
+          <select
+            value={ingredient.unit}
+            onChange={(e) => handleIngredientChange(index, 'unit', e.target.value)}
+            required
+          >
+            <option value="">Оберіть одиницю</option>
+            <option value="грам">Грам</option>
+            <option value="кг">Кілограм</option>
+            <option value="шт">Шт</option>
+            <option value="літр">Літр</option>
+            <option value="мл">Мілілітр</option>
+          </select>
+          <button type="button" onClick={() => removeIngredient(index)}>
+            Видалити інгредієнт
+          </button>
+        </div>
       ))}
       <button type="button" onClick={addIngredient}>
         Додати інгредієнт
