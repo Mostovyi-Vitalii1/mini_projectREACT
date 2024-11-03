@@ -1,16 +1,17 @@
-// RecipesPage.jsx
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useContext, useState } from 'react';
 import AddRecipeForm from '../components/recipes/AddRecipeForm';
 import EditRecipeForm from '../components/recipes/EditRecipeForm';
 import { Link } from 'react-router-dom';
-import useRecipes from '../hooks/useRecipes'; // Імпортуємо кастомний хук
-// RecipesPage.jsx
-import '../styles/styles.css'; // Імпортуємо стилі на початку файлу
+import useFetchRecipe from '../hooks/useFetchRecipe'; // Імпортуємо оновлений кастомний хук
+import { AuthContext } from '../context/AuthContext';
+import '../styles/styles.css';
 
 const RecipesPage = () => {
-  const { recipes, loading, error, fetchRecipes } = useRecipes(); // Використовуємо кастомний хук
+  const { currentUser } = useContext(AuthContext); // Отримуємо інформацію про користувача
   const [editRecipeId, setEditRecipeId] = useState(null);
+
+  // Використовуємо кастомний хук для отримання рецептів користувача
+  const { recipes, loading, error } = useFetchRecipe(null, currentUser?.id);
 
   const handleEditClick = (recipeId) => {
     setEditRecipeId(recipeId);
@@ -22,12 +23,12 @@ const RecipesPage = () => {
 
   const handleRecipeAdded = (newRecipe) => {
     // Додаємо новий рецепт до локального стану
-    fetchRecipes(); // Оновлюємо список рецептів
+    // Необхідно буде оновити локальний стан рецептів
   };
 
   const handleRecipeUpdated = (updatedRecipe) => {
     // Оновлюємо рецепт у локальному стані
-    fetchRecipes(); // Оновлюємо список рецептів
+    // Необхідно буде оновити локальний стан рецептів
     setEditRecipeId(null);
   };
 
@@ -37,7 +38,7 @@ const RecipesPage = () => {
   return (
     <div>
       <h1>Список рецептів</h1>
-      <AddRecipeForm onRecipeAdded={handleRecipeAdded} /> {/* Передаємо onRecipeAdded */}
+      <AddRecipeForm onRecipeAdded={handleRecipeAdded} />
       <ul>
         {recipes.map((recipe) => (
           <li key={recipe.id}>
@@ -51,15 +52,13 @@ const RecipesPage = () => {
                 <h2>{recipe.title}</h2>
                 {recipe.photo && (
                   <img
-                    src={`http://localhost:5000${recipe.photo}`} // Відображення фото з правильним шляхом
+                    src={`http://localhost:5000${recipe.photo}`}
                     alt={recipe.title}
                     style={{ width: '300px', height: 'auto' }}
                   />
                 )}
                 <Link to={`/recipes/${recipe.id}`}>Більше</Link>
-                <button onClick={() => handleEditClick(recipe.id)}>
-                  Редагувати
-                </button>
+                <button onClick={() => handleEditClick(recipe.id)}>Редагувати</button>
               </div>
             )}
             {editRecipeId === recipe.id && (

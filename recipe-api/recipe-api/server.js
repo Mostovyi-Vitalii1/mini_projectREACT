@@ -13,7 +13,7 @@ const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadPath = path.join(__dirname, 'uploads');
     if (!fs.existsSync(uploadPath)) {
-      fs.mkdirSync(uploadPath, { recursive: true }); // Створення папки, якщо не існує
+      fs.mkdirSync(uploadPath, { recursive: true });
     }
     cb(null, uploadPath);
   },
@@ -39,8 +39,6 @@ app.delete('/api/recipes/:id', (req, res) => {
 
   if (recipeIndex !== -1) {
     const recipe = recipes[recipeIndex];
-
-    // Видалення файлу з файлової системи, якщо він існує
     if (recipe.photo) {
       const photoPath = path.join(__dirname, recipe.photo);
       fs.unlink(photoPath, (err) => {
@@ -51,8 +49,7 @@ app.delete('/api/recipes/:id', (req, res) => {
         console.log('Фото видалено:', photoPath);
       });
     }
-
-    recipes.splice(recipeIndex, 1); // Видалення рецепту з масиву
+    recipes.splice(recipeIndex, 1);
     return res.status(200).json({ message: 'Рецепт видалено' });
   } else {
     return res.status(404).json({ message: 'Рецепт не знайдено' });
@@ -76,21 +73,21 @@ app.get('/api/recipes/:id', (req, res) => {
   }
 });
 
-// Додати новий рецепт
 app.post('/api/recipes', upload.single('photo'), (req, res) => {
-  const { title, category, ingredients, description } = req.body;
+  const { title, category, ingredients, description, userId } = req.body;
   const photo = req.file ? `/uploads/${req.file.filename}` : null;
 
-  if (!photo) {
-    return res.status(400).json({ message: 'Фото не було завантажено' });
+  if (!userId) {
+    return res.status(400).json({ message: 'userId є обов\'язковим полем' });
   }
 
   const newRecipe = { 
     id: Date.now(),
     title, 
     category, 
-    ingredients: JSON.parse(ingredients), // Перетворюємо інгредієнти з рядка в масив
+    ingredients: JSON.parse(ingredients), // Десеріалізуємо інгредієнти
     description, 
+    userId, // Додаємо userId до рецепта
     photo 
   };
 
@@ -98,21 +95,27 @@ app.post('/api/recipes', upload.single('photo'), (req, res) => {
   res.status(201).json(newRecipe);
 });
 
+
+// Отримати рецепти конкретного користувача за його userId
+app.get('/api/recipes/user/:userId', (req, res) => {
+  const { userId } = req.params;
+  const userRecipes = recipes.filter(r => r.userId === userId);
+  res.json(userRecipes);
+});
+
 // Редагувати рецепт за ID
 app.put('/api/recipes/:id', upload.single('photo'), (req, res) => {
   const { id } = req.params;
+  const { title, category, ingredients, description } = req.body;
   const recipeIndex = recipes.findIndex(r => r.id === Number(id));
 
   if (recipeIndex !== -1) {
     const recipe = recipes[recipeIndex];
+    recipe.title = title || recipe.title;
+    recipe.category = category || recipe.category;
+    recipe.ingredients = JSON.parse(ingredients) || recipe.ingredients; // Десеріалізуємо інгредієнти
+    recipe.description = description || recipe.description;
 
-    // Оновлення даних рецепта
-    recipe.title = req.body.title || recipe.title;
-    recipe.category = req.body.category || recipe.category;
-    recipe.ingredients = req.body.ingredients ? JSON.parse(req.body.ingredients) : recipe.ingredients; // Перетворення в масив
-    recipe.description = req.body.description || recipe.description;
-
-    // Якщо завантажено нове фото, видалити старе та оновити на нове
     if (req.file) {
       if (recipe.photo) {
         const oldPhotoPath = path.join(__dirname, recipe.photo);
@@ -131,13 +134,6 @@ app.put('/api/recipes/:id', upload.single('photo'), (req, res) => {
   } else {
     return res.status(404).json({ message: 'Рецепт не знайдено' });
   }
-});
-
-// API для отримання рецептів конкретного користувача
-app.get('/api/recipes/user/:userId', (req, res) => {
-  const userId = req.params.userId;
-  const userRecipes = recipes.filter(recipe => recipe.userId === userId); // Додайте поле userId до вашої моделі
-  res.json(userRecipes);
 });
 
 // Запустити сервер

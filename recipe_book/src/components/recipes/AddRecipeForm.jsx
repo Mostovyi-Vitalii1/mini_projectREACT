@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import axios from 'axios';
+import { AuthContext } from '../../context/AuthContext';
 
 const AddRecipeForm = ({ onRecipeAdded }) => {
   const [title, setTitle] = useState('');
@@ -7,6 +8,7 @@ const AddRecipeForm = ({ onRecipeAdded }) => {
   const [ingredients, setIngredients] = useState([{ name: '', quantity: '', unit: '' }]);
   const [description, setDescription] = useState('');
   const [photo, setPhoto] = useState(null);
+  const { currentUser } = useContext(AuthContext); // Отримуємо інформацію про користувача з контексту
 
   const handleIngredientChange = (index, field, value) => {
     const newIngredients = [...ingredients];
@@ -26,11 +28,17 @@ const AddRecipeForm = ({ onRecipeAdded }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!currentUser || !currentUser.id) {
+      console.error('Користувач не аутентифікований або відсутній ID користувача');
+      return;
+    }
+
     const formData = new FormData();
     formData.append('title', title);
     formData.append('category', category);
     formData.append('ingredients', JSON.stringify(ingredients));
     formData.append('description', description);
+    formData.append('userId', currentUser.id); // Передаємо userId
 
     if (photo) {
       formData.append('photo', photo);
@@ -44,23 +52,22 @@ const AddRecipeForm = ({ onRecipeAdded }) => {
       });
       console.log('Рецепт успішно додано:', response.data);
 
-      // Очистка форми після додавання
+      // Скидаємо форму
       setTitle('');
       setCategory('');
       setIngredients([{ name: '', quantity: '', unit: '' }]);
       setDescription('');
       setPhoto(null);
 
-      // Повертаємо новий рецепт у компонент
       if (onRecipeAdded) onRecipeAdded(response.data);
     } catch (error) {
-      if (error.response) {
-        console.error('Помилка при додаванні рецепта:', error.response.data);
-      } else {
-        console.error('Помилка:', error.message);
-      }
+      console.error('Помилка при додаванні рецепта:', error.response ? error.response.data : error.message);
     }
   };
+
+  if (!currentUser) {
+    return <p>Завантаження даних користувача...</p>;
+  }
 
   return (
     <form onSubmit={handleSubmit}>
