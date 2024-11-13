@@ -5,11 +5,11 @@ import useGetAllToDo from '../hooks/UseGetAllToDo';
 const RecipeDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { data: recipe, loading, error } = useGetAllToDo(`http://localhost:5000/api/recipes/${id}`);
+  const { data: recipe, loading, error } = useGetAllToDo(`http://192.168.0.109:5000/api/recipes/${id}`);
 
   const handleDelete = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/recipes/${id}`, {
+      const response = await fetch(`http://192.168.0.109:5000/api/recipes/${id}`, {
         method: 'DELETE',
       });
       if (!response.ok) throw new Error('Не вдалося видалити рецепт');
@@ -33,7 +33,7 @@ const RecipeDetailPage = () => {
       <h1>{recipe.title}</h1>
       {recipe.photo && (
         <img
-          src={`http://localhost:5000${recipe.photo}`}
+          src={`http://192.168.0.109:5000${recipe.photo}`}
           alt={recipe.title}
           style={{ width: '300px', height: 'auto' }}
         />
