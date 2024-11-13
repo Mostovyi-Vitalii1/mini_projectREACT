@@ -51,7 +51,7 @@ const EditRecipeForm = ({ recipeId, onRecipeUpdated }) => {
     }
 
     try {
-      const response = await axios.put(`http://192.168.0.109:5000/api/recipes/${recipeId}`, formData, {
+      const response = await axios.put(`http://localhost:5000/api/recipes/${recipeId}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

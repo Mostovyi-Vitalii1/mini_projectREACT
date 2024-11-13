@@ -154,7 +154,6 @@ app.put('/api/recipes/:id', upload.single('photo'), async (req, res) => {
 });
 
 // Запустити сервер
-app.listen(5000, '0.0.0.0', () => {
-  console.log('Server is running on port 5000');
+app.listen(PORT, () => {
+  console.log(`Сервер працює на http://localhost:${PORT}`);
 });
-

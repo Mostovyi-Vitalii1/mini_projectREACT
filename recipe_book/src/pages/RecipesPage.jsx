@@ -19,7 +19,7 @@ const RecipesPage = () => {
     if (currentUser?.id) {
       // Завантажуємо рецепти при кожному змінюванні користувача
       const fetchRecipes = async () => {
-        const response = await fetch(`http://192.168.0.109:5000/api/recipes/user/${currentUser.id}`);
+        const response = await fetch(`http://localhost:5000/api/recipes/user/${currentUser.id}`);
         const data = await response.json();
         setRecipes(data); // Оновлюємо стан зі списком рецептів
       };
