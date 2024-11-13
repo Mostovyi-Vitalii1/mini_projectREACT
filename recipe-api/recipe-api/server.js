@@ -23,7 +23,16 @@ const storage = multer.diskStorage({
   }
 });
 
-const upload = multer({ storage });
+const upload = multer({
+  storage,
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Тільки зображення дозволені!'), false);
+    }
+  }
+});
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -33,7 +42,16 @@ app.use('/uploads', express.static('uploads'));
 let recipes = [];
 
 // Видалити рецепт за ID
-app.delete('/api/recipes/:id', (req, res) => {
+const unlinkPhoto = (photoPath) => {
+  return new Promise((resolve, reject) => {
+    fs.unlink(photoPath, (err) => {
+      if (err) reject('Помилка при видаленні фото');
+      resolve('Фото видалено');
+    });
+  });
+};
+
+app.delete('/api/recipes/:id', async (req, res) => {
   const { id } = req.params;
   const recipeIndex = recipes.findIndex(r => r.id === Number(id));
 
@@ -41,13 +59,13 @@ app.delete('/api/recipes/:id', (req, res) => {
     const recipe = recipes[recipeIndex];
     if (recipe.photo) {
       const photoPath = path.join(__dirname, recipe.photo);
-      fs.unlink(photoPath, (err) => {
-        if (err) {
-          console.error('Помилка при видаленні фото:', err);
-          return res.status(500).json({ message: 'Не вдалося видалити фото' });
-        }
+      try {
+        await unlinkPhoto(photoPath);
         console.log('Фото видалено:', photoPath);
-      });
+      } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: 'Не вдалося видалити фото' });
+      }
     }
     recipes.splice(recipeIndex, 1);
     return res.status(200).json({ message: 'Рецепт видалено' });
@@ -73,6 +91,7 @@ app.get('/api/recipes/:id', (req, res) => {
   }
 });
 
+// Додавання нового рецепта
 app.post('/api/recipes', upload.single('photo'), (req, res) => {
   const { title, category, ingredients, description, userId } = req.body;
   const photo = req.file ? `/uploads/${req.file.filename}` : null;
@@ -81,20 +100,19 @@ app.post('/api/recipes', upload.single('photo'), (req, res) => {
     return res.status(400).json({ message: 'userId є обов\'язковим полем' });
   }
 
-  const newRecipe = { 
+  const newRecipe = {
     id: Date.now(),
-    title, 
-    category, 
+    title,
+    category,
     ingredients: JSON.parse(ingredients), // Десеріалізуємо інгредієнти
-    description, 
+    description,
     userId, // Додаємо userId до рецепта
-    photo 
+    photo
   };
 
   recipes.push(newRecipe);
   res.status(201).json(newRecipe);
 });
-
 
 // Отримати рецепти конкретного користувача за його userId
 app.get('/api/recipes/user/:userId', (req, res) => {
@@ -104,7 +122,7 @@ app.get('/api/recipes/user/:userId', (req, res) => {
 });
 
 // Редагувати рецепт за ID
-app.put('/api/recipes/:id', upload.single('photo'), (req, res) => {
+app.put('/api/recipes/:id', upload.single('photo'), async (req, res) => {
   const { id } = req.params;
   const { title, category, ingredients, description } = req.body;
   const recipeIndex = recipes.findIndex(r => r.id === Number(id));
@@ -119,13 +137,12 @@ app.put('/api/recipes/:id', upload.single('photo'), (req, res) => {
     if (req.file) {
       if (recipe.photo) {
         const oldPhotoPath = path.join(__dirname, recipe.photo);
-        fs.unlink(oldPhotoPath, (err) => {
-          if (err) {
-            console.error('Помилка при видаленні старого фото:', err);
-          } else {
-            console.log('Старе фото видалено:', oldPhotoPath);
-          }
-        });
+        try {
+          await unlinkPhoto(oldPhotoPath);
+          console.log('Старе фото видалено:', oldPhotoPath);
+        } catch (err) {
+          console.error('Помилка при видаленні старого фото:', err);
+        }
       }
       recipe.photo = `/uploads/${req.file.filename}`;
     }

@@ -1,5 +1,22 @@
 /* styles.css */
+.logout-container {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
 
+.logout-button {
+    padding: 10px 20px;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.logout-button:hover {
+    background-color: #d32f2f;
+}
 body {
     font-family: Arial, sans-serif;
     /* Легкий фон для зручності читання */
