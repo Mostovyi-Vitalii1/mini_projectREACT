@@ -1,26 +1,29 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
 
+// Створення контексту для автентифікації
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
-    // Завантажуємо дані про користувача з localStorage
-    const userJson = localStorage.getItem("user");
-    if (userJson) {
-      setCurrentUser(JSON.parse(userJson));
+    // Перевірка, чи є дані користувача в localStorage
+    const storedUser = localStorage.getItem('currentUser');
+    if (storedUser) {
+      setCurrentUser(JSON.parse(storedUser)); // Встановлюємо користувача, якщо є
     }
   }, []);
 
   const login = (user) => {
+    // Збереження даних користувача в localStorage при логіні
+    localStorage.setItem('currentUser', JSON.stringify(user));
     setCurrentUser(user);
-    localStorage.setItem("user", JSON.stringify(user)); // Зберігаємо користувача в localStorage
   };
 
   const logout = () => {
+    // Видалення користувача з localStorage при логауті
+    localStorage.removeItem('currentUser');
     setCurrentUser(null);
-    localStorage.removeItem("user"); // Видаляємо користувача з localStorage
   };
 
   return (
@@ -29,5 +32,3 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
-
-export const useAuth = () => useContext(AuthContext);

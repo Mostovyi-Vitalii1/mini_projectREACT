@@ -1,27 +1,29 @@
 import React, { useContext, useState, useEffect } from 'react';
 import AddRecipeForm from '../components/recipes/AddRecipeForm';
 import EditRecipeForm from '../components/recipes/EditRecipeForm';
-import { Link, useNavigate } from 'react-router-dom';
-import useFetchRecipe from '../hooks/useFetchRecipe'; // Імпортуємо оновлений кастомний хук
+import { Link } from 'react-router-dom';
+import useFetchRecipe from '../hooks/useFetchRecipe';
 import { AuthContext } from '../context/AuthContext';
 import '../styles/styles.css';
 
 const RecipesPage = () => {
-  const { currentUser, logout } = useContext(AuthContext); // Отримуємо інформацію про користувача та метод logout
+const { currentUser, logout } = useContext(AuthContext); 
   const [editRecipeId, setEditRecipeId] = useState(null);
-  const [recipes, setRecipes] = useState([]); // Додаємо локальний стан для списку рецептів
-  const navigate = useNavigate();
+  const [recipes, setRecipes] = useState([]);
+  
+  // Якщо currentUser ще не завантажений, показуємо лоадер
+  if (currentUser === null) {
+    return <p>Завантаження...</p>;
+  }
 
-  // Використовуємо кастомний хук для отримання рецептів користувача
   const { loading, error } = useFetchRecipe(null, currentUser?.id);
 
   useEffect(() => {
     if (currentUser?.id) {
-      // Завантажуємо рецепти при кожному змінюванні користувача
       const fetchRecipes = async () => {
         const response = await fetch(`http://localhost:5000/api/recipes/user/${currentUser.id}`);
         const data = await response.json();
-        setRecipes(data); // Оновлюємо стан зі списком рецептів
+        setRecipes(data);
       };
       fetchRecipes();
     }
@@ -36,12 +38,10 @@ const RecipesPage = () => {
   };
 
   const handleRecipeAdded = (newRecipe) => {
-    // Оновлюємо локальний стан, додаючи новий рецепт
     setRecipes((prevRecipes) => [...prevRecipes, newRecipe]);
   };
 
   const handleRecipeUpdated = (updatedRecipe) => {
-    // Оновлюємо локальний стан, замінюючи старий рецепт на оновлений
     setRecipes((prevRecipes) =>
       prevRecipes.map((recipe) =>
         recipe.id === updatedRecipe.id ? updatedRecipe : recipe
@@ -51,8 +51,8 @@ const RecipesPage = () => {
   };
 
   const handleLogout = () => {
-    logout(); // Викликаємо метод logout з контексту для видалення користувача
-    navigate('/'); // Перенаправляємо на сторінку логіну
+    logout(); 
+    navigate('/'); 
   };
 
   if (loading) return <p>Завантаження...</p>;
@@ -63,7 +63,6 @@ const RecipesPage = () => {
       <div className="logout-container">
         <button onClick={handleLogout} className="logout-button">Вихід</button>
       </div>
-
       <h1>Список рецептів</h1>
       <AddRecipeForm onRecipeAdded={handleRecipeAdded} />
       <ul>

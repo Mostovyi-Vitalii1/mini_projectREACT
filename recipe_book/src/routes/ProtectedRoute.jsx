@@ -1,18 +1,14 @@
-import { useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
+import React from 'react';
+import { Navigate } from 'react-router-dom';
+import { useContext } from 'react';
+import { AuthContext } from '../context/AuthContext';
 
 const ProtectedRoute = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState(null);
-
-  useEffect(() => {
-    const userJson = localStorage.getItem("user");
-    if (userJson) {
-      setCurrentUser(JSON.parse(userJson));
-    }
-  }, []);
+  const { currentUser } = useContext(AuthContext);
 
   if (!currentUser) {
-    return <Navigate to="/" />;
+    // Якщо користувач не залогінений, перенаправляємо на сторінку логіну
+    return <Navigate to="/login" />;
   }
 
   return children;

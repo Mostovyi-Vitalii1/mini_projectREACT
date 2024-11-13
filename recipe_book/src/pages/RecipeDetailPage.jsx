@@ -1,6 +1,7 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import useGetAllToDo from '../hooks/UseGetAllToDo';
+import '../styles/stylesForPages.css';
 
 const RecipeDetailPage = () => {
   const { id } = useParams();
@@ -29,33 +30,34 @@ const RecipeDetailPage = () => {
     : recipe.ingredients;
 
   return (
-    <div>
-      <h1>{recipe.title}</h1>
-      {recipe.photo && (
-        <img
-          src={`http://localhost:5000${recipe.photo}`}
-          alt={recipe.title}
-          style={{ width: '300px', height: 'auto' }}
-        />
-      )}
-      <h2>Категорія: {recipe.category}</h2>
-      <h3>Інгредієнти:</h3>
-      <ul>
-        {Array.isArray(ingredients) && ingredients.length > 0 ? (
-          ingredients.map((ingredient, index) => (
-            <li key={index}>
-              {ingredient.name} - {ingredient.quantity} {ingredient.unit}
-            </li>
-          ))
-        ) : (
-          <li>Інгредієнти недоступні</li>
+    <div className="page-container">
+      <div className="recipe-content">
+        <h1>{recipe.title}</h1>
+        {recipe.photo && (
+          <img
+            src={`http://localhost:5000${recipe.photo}`}
+            alt={recipe.title}
+          />
         )}
-      </ul>
-      
-      <h3>Опис:</h3>
-      <p>{recipe.description}</p>
-      
-      <button onClick={handleDelete}>Видалити рецепт</button>
+        <h2>Категорія: {recipe.category}</h2>
+        <h3>Інгредієнти:</h3>
+        <ul>
+          {Array.isArray(ingredients) && ingredients.length > 0 ? (
+            ingredients.map((ingredient, index) => (
+              <li key={index}>
+                {ingredient.name} - {ingredient.quantity} {ingredient.unit}
+              </li>
+            ))
+          ) : (
+            <li>Інгредієнти недоступні</li>
+          )}
+        </ul>
+        
+        <h3>Опис:</h3>
+        <p>{recipe.description}</p>
+        
+        <button onClick={handleDelete}>Видалити рецепт</button>
+      </div>
     </div>
   );
 };
