@@ -13,7 +13,7 @@ const useFetchRecipe = (recipeId, userId) => {
       setLoading(true);
       try {
         if (recipeId) {
-          const response = await axios.get(`http://localhost:5000/api/recipes/${recipeId}`);
+          const response = await axios.get(`http://192.168.0.109:5000/api/recipes/${recipeId}`);
           const fetchedRecipe = response.data;
 
           // Перевіряємо та конвертуємо ingredients у масив, якщо це рядок
@@ -23,7 +23,7 @@ const useFetchRecipe = (recipeId, userId) => {
 
           setRecipe(fetchedRecipe);
         } else if (userId) { // Якщо userId передано, отримуємо рецепти користувача
-          const response = await axios.get(`http://localhost:5000/api/recipes/user/${userId}`);
+          const response = await axios.get(`http://192.168.0.109:5000/api/recipes/user/${userId}`);
           const userRecipes = response.data;
           setRecipes(userRecipes);
         }
