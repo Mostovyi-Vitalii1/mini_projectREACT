@@ -120,6 +120,24 @@ app.get('/api/recipes/user/:userId', (req, res) => {
   const userRecipes = recipes.filter(r => r.userId === userId);
   res.json(userRecipes);
 });
+// Отримати всі категорії
+app.get('/api/categories', (req, res) => {
+  const categories = [
+    { id: 1, name: 'Десерти' },
+    { id: 2, name: 'Напої' },
+    { id: 3, name: 'Основні страви' },
+    { id: 4, name: 'Салати' },
+    { id: 5, name: 'Десерти' },
+    { id: 6, name: 'Алкогольні напої' }
+  ];
+  res.json(categories);
+});
+// Отримати рецепти за категорією
+app.get('/api/recipes/category/:category', (req, res) => {
+  const { category } = req.params;
+  const filteredRecipes = recipes.filter(recipe => recipe.category.toLowerCase() === category.toLowerCase());
+  res.json(filteredRecipes);
+});
 
 // Редагувати рецепт за ID
 app.put('/api/recipes/:id', upload.single('photo'), async (req, res) => {

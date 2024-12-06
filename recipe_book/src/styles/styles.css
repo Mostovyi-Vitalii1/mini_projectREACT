@@ -1,96 +1,141 @@
-/* styles.css */
-.logout-container {
-    position: absolute;
-    top: 10px;
-    right: 10px;
+/* Загальні стилі */
+body {
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    padding: 0;
+    color: #333;
+    background-color: #2f3130;
+    line-height: 1.6;
 }
 
-.logout-button {
+/* Заголовки */
+h1,
+h2,
+h3 {
+    color: #c3c1c1;
+    text-align: center;
+}
+
+/* Контейнер сторінки */
+.page-container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    
+}
+/* Кнопка для відкриття панелі */
+.open-panel-button {
+    background-color: #4CAF50;
+    color: white;
     padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+.open-panel-button:hover {
+    background-color: #45a049;
+}
+
+/* Панель для створення рецепта */
+.recipe-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 400px;
+    height: 100%;
+    background-color: #2f3130;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    z-index: 1000;
+    overflow-y: auto;
+    transition: transform 0.3s ease-in-out;
+    transform: translateX(0);
+    /* Панель відображається */
+}
+
+/* Кнопка для закриття панелі */
+.close-panel-button {
     background-color: #f44336;
     color: white;
+    padding: 10px;
     border: none;
     cursor: pointer;
-    border-radius: 5px;
+    margin-bottom: 20px;
 }
-
-.logout-button:hover {
-    background-color: #d32f2f;
-}
-body {
-    font-family: Arial, sans-serif;
-    /* Легкий фон для зручності читання */
-    margin: 0;
-    padding: 20px;
-}
-
-h1 {
+h5
+{
+    color: #2f3130;
     text-align: center;
-    color: #b7b5b5;
-    /* Основний колір тексту */
+    text-size-adjust: 10;
+}
+.close-panel-button:hover {
+    background-color: #e53935;
 }
 
-h2 {
-    color: #b7b5b5;
-    /* Трохи світліший колір заголовків рецептів */
-    margin: 10px 0;
-}
-
-ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-li {
-    background: rgb(37, 23, 23);
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+/* Карточки */
+.card {
+    background: #404040;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
     margin: 15px 0;
-    padding: 15px;
-    transition: box-shadow 0.3s;
 }
 
-li:hover {
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    /* Підсвічування при наведенні */
+.card h2 {
+    color: #007bff;
 }
 
-img {
-    display: block;
-    margin: 10px auto;
-    border-radius: 4px;
-    /* Краї з закругленням для зображень */
-}
-
+/* Кнопки */
 button {
     background-color: #007bff;
-    /* Основний колір кнопок */
-    color: white;
+    color: #fff;
     border: none;
-    border-radius: 4px;
-    padding: 10px 15px;
+    border-radius: 8px;
+    padding: 10px 20px;
     cursor: pointer;
     font-size: 16px;
-    transition: background-color 0.3s;
-    margin: 5px;
-    /* Відстань між кнопками */
+    transition: all 0.3s ease-in-out;
 }
 
 button:hover {
     background-color: #0056b3;
-    /* Темніший відтінок при наведенні */
 }
 
+/* Інпут форми */
 input,
-textarea {
+textarea,
+select {
     width: 100%;
     padding: 10px;
     margin: 10px 0;
     border: 1px solid #ccc;
-    border-radius: 4px;
+    border-radius: 8px;
     font-size: 16px;
 }
 
-input[type="file"] {
-    border: none;
+input:focus,
+textarea:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+/* Зображення */
+img {
+    max-width: 100%;
+    border-radius: 10px;
+}
+
+/* Списки */
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+ul li {
+    padding: 10px;
+    background: #f8f9fa;
+    border-left: 5px solid #007bff;
+    margin: 10px 0;
+    border-radius: 8px;
 }

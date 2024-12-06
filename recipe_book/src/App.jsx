@@ -2,6 +2,7 @@
 import React from 'react';
 import { AuthProvider } from './context/AuthContext'; // Підключаємо контекст
 import AppRoutes from './routes/AppRoutes'; // Підключаємо маршрути
+import './App.css';
 
 const App = () => {
   return (

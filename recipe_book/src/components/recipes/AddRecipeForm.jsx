@@ -10,6 +10,15 @@ const AddRecipeForm = ({ onRecipeAdded }) => {
   const [photo, setPhoto] = useState(null);
   const { currentUser } = useContext(AuthContext); // Отримуємо інформацію про користувача з контексту
 
+  const categories = [
+    { id: 1, name: 'Десерти' },
+    { id: 2, name: 'Напої' },
+    { id: 3, name: 'Основні страви' },
+    { id: 4, name: 'Салати' },
+    { id: 5, name: 'Десерти' },
+    { id: 6, name: 'Алкогольні напої' }
+  ];
+
   const handleIngredientChange = (index, field, value) => {
     const newIngredients = [...ingredients];
     newIngredients[index][field] = value;
@@ -79,13 +88,18 @@ const AddRecipeForm = ({ onRecipeAdded }) => {
         onChange={(e) => setTitle(e.target.value)}
         required
       />
-      <input
-        type="text"
-        placeholder="Категорія"
+      <select
         value={category}
         onChange={(e) => setCategory(e.target.value)}
         required
-      />
+      >
+        <option value="">Оберіть категорію</option>
+        {categories.map((category) => (
+          <option key={category.id} value={category.name}>
+            {category.name}
+          </option>
+        ))}
+      </select>
       {ingredients.map((ingredient, index) => (
         <div key={index}>
           <input
