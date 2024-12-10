@@ -127,7 +127,7 @@ app.get('/api/categories', (req, res) => {
     { id: 2, name: 'Напої' },
     { id: 3, name: 'Основні страви' },
     { id: 4, name: 'Салати' },
-    { id: 5, name: 'Десерти' },
+    { id: 5, name: 'Другі страви' },
     { id: 6, name: 'Алкогольні напої' }
   ];
   res.json(categories);
