@@ -1,19 +1,17 @@
-// RecipesPage.jsx
 import React, { useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import useFetchRecipe from '../../hooks/useFetchRecipe';
 import { AuthContext } from '../../auth/context/AuthContext';
 import RecipeFilter from '../components/RecipeFilter';
-import RecipeList from '../components/RecipeList'; // Новий компонент
-import RecipePanel from '../components/RecipePanel'; // Новий компонент
+import RecipeList from '../components/RecipeList';
+import RecipePanel from '../components/RecipePanel';
 import NewButton from '../components/NewRecipeButton';
+import useFetchRecipe from '../../hooks/useFetchRecipe';
 import '../../../styles/styles.css';
 
 const RecipesPage = () => {
   const { currentUser, logout } = useContext(AuthContext);
   const [editRecipeId, setEditRecipeId] = useState(null);
-  const [recipes, setRecipes] = useState([]); // Список всіх рецептів
-  const [filter, setFilter] = useState({ category: '', searchQuery: '' }); // Фільтр категорії та пошуку
+  const [filter, setFilter] = useState({ category: '', searchQuery: '' });
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -21,26 +19,7 @@ const RecipesPage = () => {
     return <p>Завантаження...</p>;
   }
 
-  const { loading, error } = useFetchRecipe(null, currentUser?.id);
-
-  useEffect(() => {
-    if (currentUser?.id) {
-      const fetchRecipes = async () => {
-        const response = await fetch(`http://localhost:5000/api/recipes/user/${currentUser.id}`);
-        const data = await response.json();
-        setRecipes(data);
-      };
-      fetchRecipes();
-    }
-  }, [currentUser?.id]);
-
-  const handleEditClick = (recipeId) => {
-    setEditRecipeId(recipeId);
-  };
-
-  const handleCancelEdit = () => {
-    setEditRecipeId(null);
-  };
+  const { recipes, categories, loading, error } = useFetchRecipe(currentUser?.id);
 
   const handleRecipeAdded = (newRecipe) => {
     setRecipes((prevRecipes) => [...prevRecipes, newRecipe]);
@@ -52,6 +31,13 @@ const RecipesPage = () => {
         recipe.id === updatedRecipe.id ? updatedRecipe : recipe
       )
     );
+  };
+
+  const handleEditClick = (recipeId) => {
+    setEditRecipeId(recipeId);
+  };
+
+  const handleCancelEdit = () => {
     setEditRecipeId(null);
   };
 
@@ -105,16 +91,31 @@ const RecipesPage = () => {
           <NewButton onClick={togglePanel} />
 
           {/* Панель для створення рецепта */}
-          <RecipePanel isPanelOpen={isPanelOpen} togglePanel={togglePanel} handleRecipeAdded={handleRecipeAdded} />
-
-          {/* Список рецептів */}
-          <RecipeList
-            filteredRecipes={filteredRecipes}
-            editRecipeId={editRecipeId}
-            handleEditClick={handleEditClick}
+          <RecipePanel
+            isPanelOpen={isPanelOpen}
+            togglePanel={togglePanel}
+            handleRecipeAdded={handleRecipeAdded}
             handleRecipeUpdated={handleRecipeUpdated}
-            handleCancelEdit={handleCancelEdit}
           />
+
+          {/* Якщо немає рецептів або фільтри не дали результатів */}
+          {recipes.length === 0 ? (
+            <p style={{ color: '#FFFFFF' }}>
+              Рецептів не додано, додайте якийсь рецепт
+            </p>
+          ) : filteredRecipes.length === 0 ? (
+            <p style={{ color: '#FFFFFF' }}>
+              Немає рецептів за вашими фільтрами, додайте рецепт з такими параметрами
+            </p>
+          ) : (
+            <RecipeList
+              filteredRecipes={filteredRecipes}
+              editRecipeId={editRecipeId}
+              handleEditClick={handleEditClick}
+              handleRecipeUpdated={handleRecipeUpdated}
+              handleCancelEdit={handleCancelEdit}
+            />
+          )}
         </div>
       </div>
     </div>

@@ -77,7 +77,7 @@ const AddRecipeForm = ({ onRecipeAdded }) => {
       setDescription('');
       setPhoto(null);
 
-      if (onRecipeAdded) onRecipeAdded(response.data);
+      if (onRecipeAdded) onRecipeAdded(response.data); // Викликаємо onRecipeAdded для оновлення рецепта
     } catch (error) {
       console.error('Помилка при додаванні рецепта:', error.response ? error.response.data : error.message);
     }
