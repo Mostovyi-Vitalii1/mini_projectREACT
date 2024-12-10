@@ -4,17 +4,16 @@ import EditRecipeForm from '../components/EditRecipeForm';
 import { Link } from 'react-router-dom';
 import useFetchRecipe from '../../hooks/useFetchRecipe';
 import { AuthContext } from '../../auth/context/AuthContext';
-import RecipeFilter from '../components/RecipeFilter'; // Імпортуємо компонент фільтрації
+import RecipeFilter from '../components/RecipeFilter';
 import '../../../styles/styles.css';
 
 const RecipesPage = () => {
   const { currentUser, logout } = useContext(AuthContext);
   const [editRecipeId, setEditRecipeId] = useState(null);
   const [recipes, setRecipes] = useState([]); // Список всіх рецептів
-  const [filteredRecipes, setFilteredRecipes] = useState([]); // Відфільтровані рецепти
-  const [isPanelOpen, setIsPanelOpen] = useState(false); // Стан для панелі створення рецепта
+  const [filter, setFilter] = useState({ category: '', searchQuery: '' }); // Фільтр категорії та пошуку
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
 
-  // Якщо currentUser ще не завантажений, показуємо лоадер
   if (currentUser === null) {
     return <p>Завантаження...</p>;
   }
@@ -27,7 +26,6 @@ const RecipesPage = () => {
         const response = await fetch(`http://localhost:5000/api/recipes/user/${currentUser.id}`);
         const data = await response.json();
         setRecipes(data);
-        setFilteredRecipes(data); // Спочатку всі рецепти будуть відображатися
       };
       fetchRecipes();
     }
@@ -43,17 +41,11 @@ const RecipesPage = () => {
 
   const handleRecipeAdded = (newRecipe) => {
     setRecipes((prevRecipes) => [...prevRecipes, newRecipe]);
-    setFilteredRecipes((prevFilteredRecipes) => [...prevFilteredRecipes, newRecipe]);
   };
 
   const handleRecipeUpdated = (updatedRecipe) => {
     setRecipes((prevRecipes) =>
       prevRecipes.map((recipe) =>
-        recipe.id === updatedRecipe.id ? updatedRecipe : recipe
-      )
-    );
-    setFilteredRecipes((prevFilteredRecipes) =>
-      prevFilteredRecipes.map((recipe) =>
         recipe.id === updatedRecipe.id ? updatedRecipe : recipe
       )
     );
@@ -66,32 +58,25 @@ const RecipesPage = () => {
   };
 
   const handleCategoryFilter = (selectedCategory) => {
-    if (selectedCategory) {
-      // Фільтруємо рецепти за категорією
-      const filtered = recipes.filter((recipe) => recipe.category === selectedCategory);
-      setFilteredRecipes(filtered);
-    } else {
-      // Якщо категорія не вибрана, показуємо всі рецепти
-      setFilteredRecipes(recipes);
-    }
+    setFilter((prevFilter) => ({ ...prevFilter, category: selectedCategory }));
   };
 
   const handleSearch = (searchQuery) => {
-    if (searchQuery) {
-      // Фільтруємо рецепти за назвою
-      const filtered = recipes.filter((recipe) =>
-        recipe.title.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-      setFilteredRecipes(filtered);
-    } else {
-      // Якщо немає запиту, показуємо всі рецепти
-      setFilteredRecipes(recipes);
-    }
+    setFilter((prevFilter) => ({ ...prevFilter, searchQuery }));
   };
 
   const togglePanel = () => {
     setIsPanelOpen(!isPanelOpen);
   };
+
+  const filteredRecipes = recipes.filter((recipe) => {
+    const matchesCategory =
+      !filter.category || recipe.category === filter.category;
+    const matchesSearch =
+      !filter.searchQuery ||
+      recipe.title.toLowerCase().includes(filter.searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
 
   if (loading) return <p>Завантаження...</p>;
   if (error) return <p>Помилка: {error}</p>;
@@ -99,7 +84,9 @@ const RecipesPage = () => {
   return (
     <div className="recipes-page">
       <div className="logout-container">
-        <button onClick={handleLogout} className="logout-button">Вихід</button>
+        <button onClick={handleLogout} className="logout-button">
+          Вихід
+        </button>
       </div>
 
       <div className="content">
@@ -119,7 +106,9 @@ const RecipesPage = () => {
           {/* Панель для створення рецепта */}
           {isPanelOpen && (
             <div className="recipe-panel">
-              <button onClick={togglePanel} className="close-panel-button">Закрити</button>
+              <button onClick={togglePanel} className="close-panel-button">
+                Закрити
+              </button>
               <AddRecipeForm onRecipeAdded={handleRecipeAdded} />
             </div>
           )}
@@ -134,7 +123,7 @@ const RecipesPage = () => {
                   />
                 ) : (
                   <div className="recipe-card">
-                    <h5>{recipe.title}</h5> {/* Змінили на h5 */}
+                    <h5>{recipe.title}</h5>
                     {recipe.photo && (
                       <img
                         src={`http://localhost:5000${recipe.photo}`}
@@ -143,7 +132,9 @@ const RecipesPage = () => {
                       />
                     )}
                     <Link to={`/recipes/${recipe.id}`}>Більше</Link>
-                    <button onClick={() => handleEditClick(recipe.id)}>Редагувати</button>
+                    <button onClick={() => handleEditClick(recipe.id)}>
+                      Редагувати
+                    </button>
                   </div>
                 )}
                 {editRecipeId === recipe.id && (
