@@ -37,7 +37,7 @@ const RecipeFilter = ({ onCategoryFilter, onSearch }) => {
       
       {/* Фільтрація за категорією */}
       <div>
-        <label htmlFor="category">Виберіть категорію:</label>
+        <label  htmlFor="category" style={{ color: '#FFFFFF' }}>Виберіть категорію:</label>
         <select
           id="category"
           value={selectedCategory}
@@ -54,7 +54,7 @@ const RecipeFilter = ({ onCategoryFilter, onSearch }) => {
 
       {/* Пошук за назвою */}
       <div>
-        <label htmlFor="search">Пошук за назвою:</label>
+        <label htmlFor="search" style={{ color: '#FFFFFF' }}>Пошук за назвою:</label>
         <input
           id="search"
           type="text"
