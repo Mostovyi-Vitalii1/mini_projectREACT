@@ -4,38 +4,47 @@ import { AuthContext } from "../context/AuthContext"; // Ваш контекст
 import LoginPage from "../pages/LoginPage";
 import RecipesPage from "../pages/RecipesPage";
 import RecipeDetailPage from "../pages/RecipeDetailPage";
+import ProtectedRoute from "./ProtectedRoute"; // Імпортуємо компонент ProtectedRoute
 
 const AppRoutes = () => {
-  const { currentUser } = useContext(AuthContext); // Перевірка чи є користувач залогінений
+  const { currentUser } = useContext(AuthContext); // Перевірка чи є користувач залогіненим
 
   return (
     <Router>
       <Routes>
-        {/* Якщо користувач залогінений, не показуємо сторінку логіну, а перенаправляємо на головну */}
+        {/* Сторінка логіну */}
         <Route 
           path="/login" 
           element={currentUser ? <Navigate to="/" /> : <LoginPage />} 
         />
 
-        {/* Головний маршрут, доступний тільки для залогінених користувачів */}
-        <Route
-          path="/"
-          element={currentUser ? <RecipesPage /> : <Navigate to="/login" />}
+        {/* Захищені маршрути */}
+        <Route 
+          path="/" 
+          element={
+            <ProtectedRoute>
+              <RecipesPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/recipes" 
+          element={
+            <ProtectedRoute>
+              <RecipesPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/recipes/:id" 
+          element={
+            <ProtectedRoute>
+              <RecipeDetailPage />
+            </ProtectedRoute>
+          } 
         />
 
-        {/* Захищені маршрути для рецептів */}
-        <Route
-          path="/recipes"
-          element={currentUser ? <RecipesPage /> : <Navigate to="/login" />}
-        />
-        
-        {/* Захищений маршрут для деталей рецепту */}
-        <Route
-          path="/recipes/:id"
-          element={currentUser ? <RecipeDetailPage /> : <Navigate to="/login" />}
-        />
-
-        {/* Якщо маршрут не знайдений */}
+        {/* Сторінка для невідомих маршрутів */}
         <Route path="*" element={<div>404 - Page not found</div>} />
       </Routes>
     </Router>
