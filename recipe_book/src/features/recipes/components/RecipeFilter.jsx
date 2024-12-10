@@ -13,7 +13,7 @@ const RecipeFilter = ({ onCategoryFilter, onSearch }) => {
         const data = await response.json();
         setCategories(data);
       } catch (err) {
-        console.error('Не вдалося завантажити категорії', err);
+        console.error('Не вдалося завантажити категорії122131', err);
       }
     };
     fetchCategories();

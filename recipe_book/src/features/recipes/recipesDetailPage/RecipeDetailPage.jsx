@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import useGetAllToDo from '../hooks/UseGetAllToDo';
-import '../styles/styles.css';
+import useGetAllToDo from '../../hooks/UseGetAllToDo';
+import '../../../styles/styles.css';
 
 const RecipeDetailPage = () => {
   const { id } = useParams();

@@ -1,9 +1,9 @@
 import React, { useContext } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext"; // Ваш контекст для автентифікації
-import LoginPage from "../pages/LoginPage";
-import RecipesPage from "../pages/RecipesPage";
-import RecipeDetailPage from "../pages/RecipeDetailPage";
+import { AuthContext } from "../features/auth/context/AuthContext"; // Ваш контекст для автентифікації
+import LoginPage from "../features/auth/LoginPage";
+import RecipesPage from "../features/recipes/recipesPage/RecipesPage";
+import RecipeDetailPage from "../features/recipes/recipesDetailPage/RecipeDetailPage";
 
 const AppRoutes = () => {
   const { currentUser } = useContext(AuthContext); // Перевірка чи є користувач залогінений
