@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../../auth/context/AuthContext';
+import useFetchRecipe from '../../hooks/useFetchRecipe'; // Ваш хук для отримання категорій
 
 const AddRecipeForm = ({ onRecipeAdded }) => {
   const [title, setTitle] = useState('');
@@ -10,30 +11,38 @@ const AddRecipeForm = ({ onRecipeAdded }) => {
   const [photo, setPhoto] = useState(null);
   const { currentUser } = useContext(AuthContext); // Отримуємо інформацію про користувача з контексту
 
-  const categories = [
-    { id: 1, name: 'Десерти' },
-    { id: 2, name: 'Напої' },
-    { id: 3, name: 'Основні страви' },
-    { id: 4, name: 'Салати' },
-    { id: 5, name: 'Десерти' },
-    { id: 6, name: 'Алкогольні напої' }
-  ];
+  // Використовуємо хук для отримання категорій
+  const { categories, loading, error } = useFetchRecipe(null, null);
 
+  // Якщо категорії все ще завантажуються
+  if (loading) {
+    return <p>Завантаження категорій...</p>;
+  }
+
+  // Якщо є помилка
+  if (error) {
+    return <p>Сталася помилка при завантаженні категорій: {error}</p>;
+  }
+
+  // Обробка зміни інгредієнтів
   const handleIngredientChange = (index, field, value) => {
     const newIngredients = [...ingredients];
     newIngredients[index][field] = value;
     setIngredients(newIngredients);
   };
 
+  // Додавання нового інгредієнта
   const addIngredient = () => {
     setIngredients([...ingredients, { name: '', quantity: '', unit: '' }]);
   };
 
+  // Видалення інгредієнта
   const removeIngredient = (index) => {
     const newIngredients = ingredients.filter((_, i) => i !== index);
     setIngredients(newIngredients);
   };
 
+  // Обробка форми при відправці
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -74,6 +83,7 @@ const AddRecipeForm = ({ onRecipeAdded }) => {
     }
   };
 
+  // Якщо користувач не аутентифікований
   if (!currentUser) {
     return <p>Завантаження даних користувача...</p>;
   }
@@ -94,11 +104,15 @@ const AddRecipeForm = ({ onRecipeAdded }) => {
         required
       >
         <option value="">Оберіть категорію</option>
-        {categories.map((category) => (
-          <option key={category.id} value={category.name}>
-            {category.name}
-          </option>
-        ))}
+        {categories.length > 0 ? (
+          categories.map((category) => (
+            <option key={category.id} value={category.name}>
+              {category.name}
+            </option>
+          ))
+        ) : (
+          <option>Категорії не знайдено</option>
+        )}
       </select>
       {ingredients.map((ingredient, index) => (
         <div key={index}>

@@ -1,24 +1,29 @@
-// useFetchRecipe.js
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-
 
 const useFetchRecipe = (recipeId, userId) => {
   const [recipe, setRecipe] = useState(null);
   const [recipes, setRecipes] = useState([]); // Додано для зберігання рецептів користувача
+  const [categories, setCategories] = useState([]); // Додано для зберігання категорій
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await axios.get('http://localhost:5000/api/categories');
-        setCategories(response.data);
-      } catch (err) {
-        console.error('Не вдалося завантажити категорії:', err);
-      }
-    };
-    fetchCategories();
+    // Функція для отримання категорій
+const fetchCategories = async () => {
+  try {
+    const response = await axios.get('http://localhost:5000/api/categories');
+    setCategories(response.data);
+  } catch (err) {
+    console.error('Не вдалося завантажити категорії:', err);
+    setError('Не вдалося завантажити категорії');
+  } finally {
+    setLoading(false); // Завжди вимикаємо loading, навіть якщо була помилка
+  }
+};
+
+
+    // Функція для отримання рецепта або рецептів користувача
     const fetchRecipe = async () => {
       setLoading(true);
       try {
@@ -26,7 +31,7 @@ const useFetchRecipe = (recipeId, userId) => {
           const response = await axios.get(`http://localhost:5000/api/recipes/${recipeId}`);
           const fetchedRecipe = response.data;
 
-          // Перевіряємо та конвертуємо ingredients у масив, якщо це рядок
+          // Перевірка та конвертація ingredients у масив, якщо це рядок
           fetchedRecipe.ingredients = typeof fetchedRecipe.ingredients === 'string' 
             ? JSON.parse(fetchedRecipe.ingredients) 
             : fetchedRecipe.ingredients;
@@ -44,13 +49,16 @@ const useFetchRecipe = (recipeId, userId) => {
       }
     };
 
-    // Виконувати запит тільки якщо хоча б один з параметрів не є null
-    if (recipeId || userId) {
-      fetchRecipe();
-    }
-  }, [recipeId, userId]); // Додаємо userId до залежностей
+    // Завантажуємо категорії лише один раз
+    fetchCategories(); 
 
-  return { recipe, recipes, loading, error }; // Повертаємо рецепти також
+    // Завантажуємо рецепти або один рецепт
+    if (recipeId || userId) {
+      fetchRecipe(); 
+    }
+  }, [recipeId, userId]); // Викликається при зміні recipeId або userId
+
+  return { recipe, recipes, categories, loading, error }; // Повертаємо категорії разом з рецептами
 };
 
 export default useFetchRecipe;

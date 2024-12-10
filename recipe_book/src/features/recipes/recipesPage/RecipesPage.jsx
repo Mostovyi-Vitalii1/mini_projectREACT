@@ -1,20 +1,22 @@
+// RecipesPage.jsx
 import React, { useContext, useState, useEffect } from 'react';
-import AddRecipeForm from '../components/AddRecipeForm';
-import EditRecipeForm from '../components/EditRecipeForm';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import useFetchRecipe from '../../hooks/useFetchRecipe';
 import { AuthContext } from '../../auth/context/AuthContext';
-import RecipeFilter from '../components/RecipeFilter'; // Імпортуємо компонент фільтрації
+import RecipeFilter from '../components/RecipeFilter';
+import RecipeList from '../components/RecipeList'; // Новий компонент
+import RecipePanel from '../components/RecipePanel'; // Новий компонент
+import NewButton from '../components/NewRecipeButton';
 import '../../../styles/styles.css';
 
 const RecipesPage = () => {
   const { currentUser, logout } = useContext(AuthContext);
   const [editRecipeId, setEditRecipeId] = useState(null);
   const [recipes, setRecipes] = useState([]); // Список всіх рецептів
-  const [filteredRecipes, setFilteredRecipes] = useState([]); // Відфільтровані рецепти
-  const [isPanelOpen, setIsPanelOpen] = useState(false); // Стан для панелі створення рецепта
+  const [filter, setFilter] = useState({ category: '', searchQuery: '' }); // Фільтр категорії та пошуку
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const navigate = useNavigate();
 
-  // Якщо currentUser ще не завантажений, показуємо лоадер
   if (currentUser === null) {
     return <p>Завантаження...</p>;
   }
@@ -27,7 +29,6 @@ const RecipesPage = () => {
         const response = await fetch(`http://localhost:5000/api/recipes/user/${currentUser.id}`);
         const data = await response.json();
         setRecipes(data);
-        setFilteredRecipes(data); // Спочатку всі рецепти будуть відображатися
       };
       fetchRecipes();
     }
@@ -43,17 +44,11 @@ const RecipesPage = () => {
 
   const handleRecipeAdded = (newRecipe) => {
     setRecipes((prevRecipes) => [...prevRecipes, newRecipe]);
-    setFilteredRecipes((prevFilteredRecipes) => [...prevFilteredRecipes, newRecipe]);
   };
 
   const handleRecipeUpdated = (updatedRecipe) => {
     setRecipes((prevRecipes) =>
       prevRecipes.map((recipe) =>
-        recipe.id === updatedRecipe.id ? updatedRecipe : recipe
-      )
-    );
-    setFilteredRecipes((prevFilteredRecipes) =>
-      prevFilteredRecipes.map((recipe) =>
         recipe.id === updatedRecipe.id ? updatedRecipe : recipe
       )
     );
@@ -66,32 +61,25 @@ const RecipesPage = () => {
   };
 
   const handleCategoryFilter = (selectedCategory) => {
-    if (selectedCategory) {
-      // Фільтруємо рецепти за категорією
-      const filtered = recipes.filter((recipe) => recipe.category === selectedCategory);
-      setFilteredRecipes(filtered);
-    } else {
-      // Якщо категорія не вибрана, показуємо всі рецепти
-      setFilteredRecipes(recipes);
-    }
+    setFilter((prevFilter) => ({ ...prevFilter, category: selectedCategory }));
   };
 
   const handleSearch = (searchQuery) => {
-    if (searchQuery) {
-      // Фільтруємо рецепти за назвою
-      const filtered = recipes.filter((recipe) =>
-        recipe.title.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-      setFilteredRecipes(filtered);
-    } else {
-      // Якщо немає запиту, показуємо всі рецепти
-      setFilteredRecipes(recipes);
-    }
+    setFilter((prevFilter) => ({ ...prevFilter, searchQuery }));
   };
 
   const togglePanel = () => {
     setIsPanelOpen(!isPanelOpen);
   };
+
+  const filteredRecipes = recipes.filter((recipe) => {
+    const matchesCategory =
+      !filter.category || recipe.category === filter.category;
+    const matchesSearch =
+      !filter.searchQuery ||
+      recipe.title.toLowerCase().includes(filter.searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
 
   if (loading) return <p>Завантаження...</p>;
   if (error) return <p>Помилка: {error}</p>;
@@ -99,7 +87,9 @@ const RecipesPage = () => {
   return (
     <div className="recipes-page">
       <div className="logout-container">
-        <button onClick={handleLogout} className="logout-button">Вихід</button>
+        <button onClick={handleLogout} className="logout-button">
+          Вихід
+        </button>
       </div>
 
       <div className="content">
@@ -112,46 +102,19 @@ const RecipesPage = () => {
           <h1>Список рецептів</h1>
 
           {/* Кнопка для відкриття панелі */}
-          <button onClick={togglePanel} className="open-panel-button">
-            Створити новий рецепт
-          </button>
+          <NewButton onClick={togglePanel} />
 
           {/* Панель для створення рецепта */}
-          {isPanelOpen && (
-            <div className="recipe-panel">
-              <button onClick={togglePanel} className="close-panel-button">Закрити</button>
-              <AddRecipeForm onRecipeAdded={handleRecipeAdded} />
-            </div>
-          )}
+          <RecipePanel isPanelOpen={isPanelOpen} togglePanel={togglePanel} handleRecipeAdded={handleRecipeAdded} />
 
-          <ul>
-            {filteredRecipes.map((recipe) => (
-              <li key={recipe.id}>
-                {editRecipeId === recipe.id ? (
-                  <EditRecipeForm
-                    recipeId={recipe.id}
-                    onRecipeUpdated={handleRecipeUpdated}
-                  />
-                ) : (
-                  <div className="recipe-card">
-                    <h5>{recipe.title}</h5> {/* Змінили на h5 */}
-                    {recipe.photo && (
-                      <img
-                        src={`http://localhost:5000${recipe.photo}`}
-                        alt={recipe.title}
-                        style={{ width: '300px', height: 'auto' }}
-                      />
-                    )}
-                    <Link to={`/recipes/${recipe.id}`}>Більше</Link>
-                    <button onClick={() => handleEditClick(recipe.id)}>Редагувати</button>
-                  </div>
-                )}
-                {editRecipeId === recipe.id && (
-                  <button onClick={handleCancelEdit}>Скасувати редагування</button>
-                )}
-              </li>
-            ))}
-          </ul>
+          {/* Список рецептів */}
+          <RecipeList
+            filteredRecipes={filteredRecipes}
+            editRecipeId={editRecipeId}
+            handleEditClick={handleEditClick}
+            handleRecipeUpdated={handleRecipeUpdated}
+            handleCancelEdit={handleCancelEdit}
+          />
         </div>
       </div>
     </div>

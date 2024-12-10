@@ -1,6 +1,10 @@
+// RecipeDetailPage.jsx
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import useGetAllToDo from '../../hooks/UseGetAllToDo';
+import RecipeIngredients from './components/RecipeIngredients';
+import RecipeInfo from './components/RecipeInfo';
+import DeleteRecipeButton from './components/DeleteRecipeButton';
 import '../../../styles/styles.css';
 
 const RecipeDetailPage = () => {
@@ -32,32 +36,13 @@ const RecipeDetailPage = () => {
   return (
     <div className="page-container">
       <div className="recipe-content">
-        <h1>{recipe.title}</h1>
-        {recipe.photo && (
-          <img
-            src={`http://localhost:5000${recipe.photo}`}
-            alt={recipe.title}
-          />
-        )}
-        <h2>Категорія: {recipe.category}</h2>
-        <h3>Інгредієнти:</h3>
-        <ul>
-          {Array.isArray(ingredients) && ingredients.length > 0 ? (
-            ingredients.map((ingredient, index) => (
-              <li key={index}>
-                {ingredient.name} - {ingredient.quantity} {ingredient.unit}
-              </li>
-            ))
-          ) : (
-            <li>Інгредієнти недоступні</li>
-          )}
-        </ul>
+        <RecipeInfo title={recipe.title} photo={recipe.photo} category={recipe.category} />
+        <RecipeIngredients ingredients={ingredients} />
         
         <h3>Опис:</h3>
         <p style={{ textAlign: "center", color: 'white' }}>{recipe.description}</p>
 
-        
-        <button onClick={handleDelete}>Видалити рецепт</button>
+        <DeleteRecipeButton handleDelete={handleDelete} />
       </div>
     </div>
   );
