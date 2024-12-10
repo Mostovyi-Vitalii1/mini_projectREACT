@@ -54,7 +54,8 @@ const RecipeDetailPage = () => {
         </ul>
         
         <h3>Опис:</h3>
-        <p>{recipe.description}</p>
+        <p style={{ textAlign: "center", color: 'white' }}>{recipe.description}</p>
+
         
         <button onClick={handleDelete}>Видалити рецепт</button>
       </div>

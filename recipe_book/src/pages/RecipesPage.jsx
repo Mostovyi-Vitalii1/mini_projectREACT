@@ -26,7 +26,6 @@ const RecipesPage = () => {
       const fetchRecipes = async () => {
         const response = await fetch(`http://localhost:5000/api/recipes/user/${currentUser.id}`);
         const data = await response.json();
-        setRecipes(data);
         setFilteredRecipes(data); // Спочатку всі рецепти будуть відображатися
       };
       fetchRecipes();

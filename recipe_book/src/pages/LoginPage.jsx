@@ -30,7 +30,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="login-container">
+    <div className="login-container" style={{ color: 'white' }}>
       <h2>Вхід</h2>
       <form onSubmit={handleSubmit}>
         <div>
