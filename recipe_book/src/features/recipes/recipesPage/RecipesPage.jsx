@@ -1,11 +1,11 @@
 import React, { useContext, useState, useEffect } from 'react';
-import AddRecipeForm from '../components/recipes/AddRecipeForm';
-import EditRecipeForm from '../components/recipes/EditRecipeForm';
+import AddRecipeForm from '../components/AddRecipeForm';
+import EditRecipeForm from '../components/EditRecipeForm';
 import { Link } from 'react-router-dom';
-import useFetchRecipe from '../hooks/useFetchRecipe';
-import { AuthContext } from '../context/AuthContext';
-import RecipeFilter from '../components/recipes/RecipeFilter'; // Імпортуємо компонент фільтрації
-import '../styles/styles.css';
+import useFetchRecipe from '../../hooks/useFetchRecipe';
+import { AuthContext } from '../../auth/context/AuthContext';
+import RecipeFilter from '../components/RecipeFilter'; // Імпортуємо компонент фільтрації
+import '../../../styles/styles.css';
 
 const RecipesPage = () => {
   const { currentUser, logout } = useContext(AuthContext);
@@ -26,6 +26,7 @@ const RecipesPage = () => {
       const fetchRecipes = async () => {
         const response = await fetch(`http://localhost:5000/api/recipes/user/${currentUser.id}`);
         const data = await response.json();
+        setRecipes(data);
         setFilteredRecipes(data); // Спочатку всі рецепти будуть відображатися
       };
       fetchRecipes();

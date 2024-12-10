@@ -1,6 +1,6 @@
 // src/App.jsx
 import React from 'react';
-import { AuthProvider } from './context/AuthContext'; // Підключаємо контекст
+import { AuthProvider } from './features/auth/context/AuthContext'; // Підключаємо контекст
 import AppRoutes from './routes/AppRoutes'; // Підключаємо маршрути
 import './App.css';
 
